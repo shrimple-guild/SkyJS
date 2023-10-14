@@ -1,5 +1,0 @@
-Endpoints:
-
-/skyblock/profiles/uuid/strategy
-
-data: [skills, collections, bestiary, inventories, etc]
