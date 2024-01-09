@@ -1,33 +1,41 @@
-import { skills, slayers } from "../../constants/leveling"
-import { SkyblockMemberSlayerData, SkyblockMemberSlayers } from "../types/SkyblockProfileTypes"
-import { APISkyblockMember, APISkyblockProfile } from "../types/APIProfileTypes"
+import { skills, slayers } from "../../constants/leveling.js"
+import {
+	SkyblockMemberSlayerData,
+	SkyblockMemberSlayers
+} from "../types/SkyblockProfileTypes.js"
+import {
+	APISkyblockMember,
+	APISkyblockProfile
+} from "../types/APIProfileTypes.js"
 
-export function generateSlayers(member: APISkyblockMember): SkyblockMemberSlayers {
-  return {
-    zombie: generateSlayerData(member, "zombie", 5),
-    spider: generateSlayerData(member, "spider", 4),
-    wolf: generateSlayerData(member, "wolf", 4),
-    enderman: generateSlayerData(member, "enderman", 4),
-    blaze: generateSlayerData(member, "blaze", 4),
-    vampire: generateSlayerData(member, "vampire", 5),
-  }
+export function generateSlayers(
+	member: APISkyblockMember
+): SkyblockMemberSlayers {
+	return {
+		zombie: generateSlayerData(member, "zombie", 5),
+		spider: generateSlayerData(member, "spider", 4),
+		wolf: generateSlayerData(member, "wolf", 4),
+		enderman: generateSlayerData(member, "enderman", 4),
+		blaze: generateSlayerData(member, "blaze", 4),
+		vampire: generateSlayerData(member, "vampire", 5)
+	}
 }
 
 function generateSlayerData(
-  member: APISkyblockMember,
-  slayer: keyof typeof slayers,
-  maxTier: number
+	member: APISkyblockMember,
+	slayer: keyof typeof slayers,
+	maxTier: number
 ): SkyblockMemberSlayerData {
-  const apiSlayerData = member.slayer_bosses?.[slayer]
-  const kills: number[] = []
+	const apiSlayerData = member.slayer_bosses?.[slayer]
+	const kills: number[] = []
 
-  for (let tier = 0; tier < maxTier; tier++) {
-    // @ts-ignore
-    kills.push(apiSlayerData?.[`boss_kills_tier_${tier}`] ?? 0)
-  }
+	for (let tier = 0; tier < maxTier; tier++) {
+		// @ts-ignore
+		kills.push(apiSlayerData?.[`boss_kills_tier_${tier}`] ?? 0)
+	}
 
-  return {
-    level: slayers[slayer].calculateLevel(apiSlayerData?.xp ?? 0),
-    kills: kills,
-  }
+	return {
+		level: slayers[slayer].calculateLevel(apiSlayerData?.xp ?? 0),
+		kills: kills
+	}
 }
