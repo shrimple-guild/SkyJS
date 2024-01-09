@@ -1,15 +1,5 @@
 # skyjs
 
-To install dependencies:
+A work-in-progress Hypixel API facade in Typescript, for future use in guild bridges, leaderboards, and other projects.
 
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run ./src/app.ts
-```
-
-This project was created using `bun init` in bun v1.0.6. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+Uses the Yarn package manager.
