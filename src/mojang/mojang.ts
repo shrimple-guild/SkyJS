@@ -5,12 +5,17 @@ import sharp from "sharp"
 export type PlayerInfo = {
 	uuid: string
 	username: string
-	avatar: string
+	avatar?: string
 }
 
-export function resolve(input: string): Promise<PlayerInfo> {
+export function resolve(
+	input: string,
+	includeAvatar: boolean
+): Promise<PlayerInfo> {
 	let uuidProvided = isUUID(input)
-	return uuidProvided ? getUsername(input) : getUuid(input)
+	return uuidProvided
+		? getUsername(input, includeAvatar)
+		: getUuid(input, includeAvatar)
 }
 
 function isUUID(input: string): boolean {
@@ -32,7 +37,10 @@ const getSkin = memoize(fetchSkinFromAPI, {
 	maxAge: 15 * 60 * 1000
 })
 
-async function fetchUuidFromAPI(username: string): Promise<PlayerInfo> {
+async function fetchUuidFromAPI(
+	username: string,
+	includeAvatar: boolean
+): Promise<PlayerInfo> {
 	const url = new URL(
 		`https://api.mojang.com/users/profiles/minecraft/${username}`
 	)
@@ -42,7 +50,7 @@ async function fetchUuidFromAPI(username: string): Promise<PlayerInfo> {
 		return {
 			username: json.name,
 			uuid: json.id,
-			avatar: await getSkin(json.id)
+			avatar: includeAvatar ? await getSkin(json.id) : undefined
 		}
 	}
 	if (mojangResponse.ok)
@@ -53,7 +61,10 @@ async function fetchUuidFromAPI(username: string): Promise<PlayerInfo> {
 	)
 }
 
-async function fetchUsernameFromAPI(uuid: string): Promise<PlayerInfo> {
+async function fetchUsernameFromAPI(
+	uuid: string,
+	includeAvatar: boolean
+): Promise<PlayerInfo> {
 	const url = new URL(
 		`https://sessionserver.mojang.com/session/minecraft/profile/${uuid}`
 	)
@@ -63,7 +74,7 @@ async function fetchUsernameFromAPI(uuid: string): Promise<PlayerInfo> {
 		return {
 			username: json.name,
 			uuid: json.id,
-			avatar: await getSkin(json.id)
+			avatar: includeAvatar ? await getSkin(json.id) : undefined
 		}
 	}
 	if (mojangResponse.ok)

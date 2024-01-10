@@ -11,9 +11,7 @@ function fetchHypixel(
 	params?: Record<string, string>
 ) {
 	const baseURL = new URL("https://api.hypixel.net/")
-	const queryParameters = authenticated
-		? { ...params, key: process.env.HYPIXEL_API_KEY! }
-		: params
+	const queryParameters = authenticated ? { ...params, key: process.env.HYPIXEL_API_KEY! } : params
 	const url = new URL(baseURL)
 	url.pathname = endpoint
 	url.search = new URLSearchParams(queryParameters).toString()
@@ -27,18 +25,15 @@ export async function fetchBazaar(): Promise<SkyblockBazaarProduct[]> {
 		throw new HypixelAPIError("API error", response.status)
 	}
 
-	const apiBazaarData: APISkyblockBazaarResponse =
-		(await response.json()) as any
+	const apiBazaarData: APISkyblockBazaarResponse = (await response.json()) as any
 
 	const products = Object.values(apiBazaarData.products)
 
 	return []
 }
 
-export async function fetchHypixelProfiles(
-	input: string
-): Promise<SkyblockProfiles> {
-	const name = await resolve(input)
+export async function fetchHypixelProfiles(input: string): Promise<SkyblockProfiles> {
+	const name = await resolve(input, false)
 	const response = await fetchHypixel("/skyblock/profiles", true, {
 		uuid: name.uuid
 	})
