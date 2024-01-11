@@ -16,7 +16,7 @@ export class Level {
 		let maxLevel = Math.min(cap ?? Infinity, this.max)
 		let levelingCurve = this.cumulative.slice(0, maxLevel)
 		for (let i = 0; i < levelingCurve.length; i++) {
-			if (xp >= levelingCurve[i]) {
+			if (xp >= levelingCurve[i]!) {
 				level++
 			} else {
 				break
@@ -27,8 +27,7 @@ export class Level {
 			level,
 			xp,
 			xpOverLevel,
-			xpToNext:
-				level != maxLevel ? levelingCurve[level] - xpOverLevel : undefined,
+			xpToNext: level != maxLevel ? levelingCurve[level]! - xpOverLevel : undefined,
 			maxed: level == this.max,
 			cap
 		}

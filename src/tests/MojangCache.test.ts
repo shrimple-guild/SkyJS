@@ -1,44 +1,48 @@
 import { describe, it } from "node:test"
 import assert from "node:assert"
+import { postgresPool } from "../data/database.js"
+import { MojangCache } from "../data/MojangCache.js"
 
-import { Redis } from "ioredis"
-import { MojangCache } from "../redis/MojangCache.js"
+await postgresPool.query(`
+CREATE TABLE IF NOT EXISTS player_names (
+  uuid UUID PRIMARY KEY,
+  name TEXT UNIQUE NOT NULL,
+  updated TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
 
-export const redisClient = new Redis({
-	keyPrefix: "skyjstesting:"
-})
+CREATE TABLE IF NOT EXISTS player_skins (
+  uuid UUID PRIMARY KEY,
+  hash TEXT NOT NULL,
+  updated TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
 
-const cache = new MojangCache(redisClient, 1, 5)
+CREATE TABLE IF NOT EXISTS skin_textures (
+  hash TEXT PRIMARY KEY,
+  texture BYTEA NOT NULL
+);
 
-describe("Set cache name", async () => {
-	await cache.setName("59998433ceda41c1b0acffe7d9b33594", "appable")
-	const name = await cache.getName("59998433ceda41c1b0acffe7d9b33594")
-	assert.deepStrictEqual(name, {
-		value: "appable",
-		fresh: true
-	})
+CREATE INDEX IF NOT EXISTS idx_player_name_lowercase ON player_names (lower(name));
+`)
 
-	const notAName = await cache.getName("93ce1cad833f46ffa124b66d2b99c4fd")
-	assert.equal(notAName, null)
+const uuid = "59998433ceda41c1b0acffe7d9b33594"
+const skinHash = "97b4d8772a2860fe2e1e855de94b6bd59e6b022996f48b255a82503655b0b623"
+const textureBase64 =
+	"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"
+const texture = Buffer.from(textureBase64, "base64")
 
-	await new Promise<void>((resolve) => {
-		setTimeout(async () => {
-			const staleName = await cache.getName("59998433ceda41c1b0acffe7d9b33594")
-			assert.deepStrictEqual(staleName, {
-				value: "appable",
-				fresh: false
-			})
-			resolve()
-		}, 2000)
-	})
+const cache = new MojangCache(postgresPool)
+await cache.setName(uuid, "appable")
+const cachedName = await cache.getName(uuid)
+console.log(cachedName)
+const cachedUuid = await cache.getUuid("Appable")
+console.log(cachedUuid)
 
-	await new Promise<void>((resolve) => {
-		setTimeout(async () => {
-			const deletedName = await cache.getName(
-				"59998433ceda41c1b0acffe7d9b33594"
-			)
-			assert.equal(deletedName, null)
-			resolve()
-		}, 6000)
-	})
-})
+await cache.setSkinHash("59998433ceda41c1b0acffe7d9b33594", skinHash)
+await cache.setSkinTexture(skinHash, texture)
+
+const cachedTexture = await cache.getSkin(uuid)
+console.log(cachedTexture)
+
+if (cachedTexture != null) {
+	console.log(textureBase64 == cachedTexture.texture.toString("base64"))
+}

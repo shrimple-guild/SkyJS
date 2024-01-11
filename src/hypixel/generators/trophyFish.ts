@@ -26,16 +26,13 @@ const tiers = ["bronze", "silver", "gold", "diamond"]
 
 type Tier = (typeof tiers)[number]
 
-export function generateTrophyFish(
-	member: APISkyblockMember
-): SkyblockTrophyFishData {
+export function generateTrophyFish(member: APISkyblockMember): SkyblockTrophyFishData {
 	const trophyFish = member.trophy_fish ?? { rewards: [] }
 	const { rewards, ...counts }: { rewards: number[] } = trophyFish
 	const trophyFishCounts: OptionalRecord<string, number> = counts
-	const claimedTier =
-		rewards.length != 0 ? tiers[Math.max(...rewards) - 1] : null
+	const claimedTier = rewards.length != 0 ? tiers[Math.max(...rewards) - 1] : undefined
 	const fish = fishNames.map((name) => {
-		let highestTier: Tier | null = null
+		let highestTier: Tier | undefined = undefined
 		const tierCounts: Record<Tier, number> = Object.fromEntries(
 			tiers.map((tier) => {
 				const key = `${name.apiName}_${tier}`

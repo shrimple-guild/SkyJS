@@ -55,10 +55,10 @@ export type SkyblockMemberData = {
 
 export type SkyblockTrophyFishData = {
 	total: number
-	trophyHunter: string | null
+	trophyHunter: string | undefined
 	fish: {
 		fish: string
-		tier: string | null
+		tier: string | undefined
 		count: number
 		tiers: Record<string, number>
 	}[]
