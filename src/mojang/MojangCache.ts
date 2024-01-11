@@ -1,4 +1,4 @@
-import { PostgresPool } from "./database.js"
+import { PostgresPool } from "../data/database.js"
 
 type UUIDResponse = { uuid: string; updated: string }
 type NameResponse = { name: string; updated: string }

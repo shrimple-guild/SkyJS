@@ -1,10 +1,3 @@
-import {
-	fetchMojangProfile,
-	fetchMojangSession,
-	fetchSkin,
-	fetchTextureData
-} from "../mojang/MojangAPI.js"
-
 // none of these are actually tests but its FINE
 async function test() {
 	/*

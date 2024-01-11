@@ -1,13 +1,15 @@
 import { describe, it } from "node:test"
 import assert from "node:assert"
 import { postgresPool } from "../data/database.js"
-import { MojangCache } from "../data/MojangCache.js"
+import { MojangCache } from "../mojang/MojangCache.js"
 
 await postgresPool.query(`
 CREATE TABLE IF NOT EXISTS player_names (
-  uuid UUID PRIMARY KEY,
-  name TEXT UNIQUE NOT NULL,
-  updated TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+  id SERIAL PRIMARY KEY,
+  uuid UUID UNIQUE,
+  name TEXT UNIQUE,
+  updated TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  check (uuid IS NOT NULL OR name IS NOT NULL)
 );
 
 CREATE TABLE IF NOT EXISTS player_skins (

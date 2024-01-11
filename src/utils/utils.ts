@@ -1,5 +1,15 @@
-export function normalizeUuid(uuid: string) {
-	return uuid.replaceAll("-", "")
+const uuidRegex = /^([a-f0-9]{8})-?([a-f0-9]{4})-?([a-f0-9]{4})-?([a-f0-9]{4})-?([a-f0-9]{12})$/i
+
+export function standardizeUuid(uuid: string): string | undefined {
+	const matcher = uuid.match(uuidRegex)
+	if (matcher == null) return
+	return matcher.slice(1).join("-").toLocaleLowerCase()
+}
+
+const minecraftNameRegex = /^\w{1,16}$/
+
+export function isName(maybeName: string): boolean {
+	return minecraftNameRegex.test(maybeName)
 }
 
 export function removeFormatting(str: string) {

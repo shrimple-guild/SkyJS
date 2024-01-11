@@ -1,20 +1,14 @@
 import { PlayerInfo } from "../../mojang/mojang.js"
-import { normalizeUuid } from "../../utils/utils.js"
+import { standardizeUuid } from "../../utils/utils.js"
 import { SkyblockProfileData } from "../types/SkyblockProfileTypes.js"
 import { APISkyblockProfile, OptionalRecord } from "../types/APIProfileTypes.js"
 import { SkyblockMember } from "./SkyblockMember.js"
 
 export class SkyblockProfile {
-	constructor(
-		readonly player: PlayerInfo,
-		private profile: APISkyblockProfile
-	) {}
+	constructor(readonly player: PlayerInfo, private profile: APISkyblockProfile) {}
 
 	get member() {
-		return new SkyblockMember(
-			this.player,
-			this.profile.members[this.player.uuid]!
-		)
+		return new SkyblockMember(this.player, this.profile.members[this.player.uuid]!)
 	}
 
 	get gamemode() {
@@ -26,7 +20,11 @@ export class SkyblockProfile {
 	}
 
 	get profileId() {
-		return normalizeUuid(this.profile.profile_id)
+		const uuid = standardizeUuid(this.profile.profile_id)
+		if (uuid == null) {
+			throw Error("The profile ID is not a UUID! Weird!")
+		}
+		return uuid
 	}
 
 	get members() {
