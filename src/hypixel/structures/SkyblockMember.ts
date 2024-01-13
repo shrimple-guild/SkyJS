@@ -1,16 +1,32 @@
-import { generateBestiary } from "../generators/bestiary.js"
-import { generateDungeons } from "../generators/dungeons.js"
-import { generateSkills } from "../generators/skills.js"
-import { generateSlayers } from "../generators/slayers.js"
-import { generateTrophyFish } from "../generators/trophyFish.js"
-import { SkyblockMemberData } from "../types/SkyblockProfileTypes.js"
-import { APISkyblockMember } from "../types/APIProfileTypes.js"
-import { MinecraftPlayer } from "../../mojang/MojangTypes.js"
+import { APISkill, APISkyblockMember } from "../types/APIProfileTypesV2.js"
+import { APIDisabledError } from "../errors/APIDisabledError.js"
+import { Level } from "../../utils/Level.js"
+import { skills } from "../../constants/leveling.js"
 
 export class SkyblockMember {
 	constructor(readonly raw: APISkyblockMember) {}
 
-	get skyblockLevel() {
+	getSkyblockLevel() {
 		return (this.raw.leveling?.experience ?? 0) / 100
+	}
+
+	getFarmingLevelCap() {
+		return 50 + (this.raw.jacobs_contest?.perks?.farming_level_cap ?? 0)
+	}
+
+	getSkill(skill: APISkill) {
+		if (!this.isSkillAPIEnabled()) {
+			throw new APIDisabledError("skills")
+		}
+		const xp = this.raw.player_data?.experience?.[skill] ?? 0
+		if (skill == "SKILL_FARMING") {
+			return skills[skill].calculateLevel(xp, this.getFarmingLevelCap())
+		} else {
+			return skills[skill].calculateLevel(xp)
+		}
+	}
+
+	isSkillAPIEnabled() {
+		return this.raw.player_data?.experience != null
 	}
 }

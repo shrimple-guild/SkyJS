@@ -1,5 +1,5 @@
 import { standardizeUuid, trimUuid } from "../../utils/utils.js"
-import { APISkyblockProfile } from "../types/APIProfileTypes.js"
+import { APISkyblockProfile } from "../types/APIProfileTypesV2.js"
 import { SkyblockMember } from "./SkyblockMember.js"
 
 export class SkyblockProfile {

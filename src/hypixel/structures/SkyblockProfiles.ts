@@ -1,5 +1,4 @@
-import { MinecraftPlayer } from "../../mojang/MojangTypes.js"
-import { APISkyblockProfile } from "../types/APIProfileTypes.js"
+import { APISkyblockProfile } from "../types/APIProfileTypesV2.js"
 import { SkyblockProfile } from "./SkyblockProfile.js"
 
 export class SkyblockProfiles {
@@ -15,7 +14,7 @@ export class SkyblockProfiles {
 
 	get main() {
 		return this.profiles.reduce((prev, cur) =>
-			cur.member.skyblockLevel > prev.member.skyblockLevel ? cur : prev
+			cur.member.getSkyblockLevel() > prev.member.getSkyblockLevel() ? cur : prev
 		)
 	}
 
