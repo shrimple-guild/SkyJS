@@ -1,49 +1,49 @@
-import { PlayerInfo } from "../../mojang/mojang.js"
-import { standardizeUuid } from "../../utils/utils.js"
-import { SkyblockProfileData } from "../types/SkyblockProfileTypes.js"
-import { APISkyblockProfile, OptionalRecord } from "../types/APIProfileTypes.js"
+import { standardizeUuid, trimUuid } from "../../utils/utils.js"
+import { APISkyblockProfile } from "../types/APIProfileTypes.js"
 import { SkyblockMember } from "./SkyblockMember.js"
 
 export class SkyblockProfile {
-	constructor(readonly player: PlayerInfo, private profile: APISkyblockProfile) {}
+	constructor(readonly uuid: string, readonly raw: APISkyblockProfile) {}
 
 	get member() {
-		return new SkyblockMember(this.player, this.profile.members[this.player.uuid]!)
+		const rawMember = this.raw.members[trimUuid(this.uuid)]
+		if (rawMember == null) {
+			throw Error(`Member ${this.uuid} is somehow not part of profile ${this.profileId}.`)
+		}
+		return new SkyblockMember(rawMember)
 	}
 
 	get gamemode() {
-		return this.profile.game_mode
+		return this.raw.game_mode
 	}
 
 	get cuteName() {
-		return this.profile.cute_name
+		return this.raw.cute_name
 	}
 
 	get profileId() {
-		const uuid = standardizeUuid(this.profile.profile_id)
+		const uuid = standardizeUuid(this.raw.profile_id)
 		if (uuid == null) {
-			throw Error("The profile ID is not a UUID! Weird!")
+			throw Error("The profile ID is not a UUID.")
 		}
 		return uuid
 	}
 
 	get members() {
-		return Object.keys(this.profile.members)
+		return Object.keys(this.raw.members)
 	}
 
 	get selected() {
-		return this.profile.selected
+		return this.raw.selected
 	}
 
-	generate(): SkyblockProfileData {
+	json() {
 		return {
-			player: this.player,
-			profileId: this.profileId,
-			members: this.members,
-			bankBalance: this.profile.banking?.balance,
-			cuteName: this.cuteName,
+			profile_id: this.profileId,
 			selected: this.selected,
-			member: this.member.generate()
+			cute_name: this.cuteName,
+			members: this.members,
+			member: this.member
 		}
 	}
 }

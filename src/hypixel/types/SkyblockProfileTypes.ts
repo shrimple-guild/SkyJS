@@ -1,7 +1,7 @@
-import { PlayerInfo } from "../../mojang/mojang.js"
+import { MinecraftPlayer } from "../../mojang/MojangTypes.js"
 
 export type SkyblockProfileData = {
-	player: PlayerInfo
+	player: MinecraftPlayer
 	profileId: string
 	members: string[]
 	bankBalance?: number

@@ -1,18 +1,16 @@
+import { MinecraftPlayer } from "../../mojang/MojangTypes.js"
 import { APISkyblockProfile } from "../types/APIProfileTypes.js"
 import { SkyblockProfile } from "./SkyblockProfile.js"
-import { PlayerInfo } from "../../mojang/mojang.js"
 
 export class SkyblockProfiles {
 	readonly profiles: SkyblockProfile[]
 
-	constructor(private player: PlayerInfo, profiles: APISkyblockProfile[]) {
-		this.profiles = profiles.map(
-			(profile) => new SkyblockProfile(this.player, profile)
-		)
+	constructor(private uuid: string, profiles: APISkyblockProfile[]) {
+		this.profiles = profiles.map((profile) => new SkyblockProfile(this.uuid, profile))
 	}
 
 	get selected() {
-		return this.profiles.find((profile) => profile.selected)
+		return this.profiles.find((profile) => profile.selected) ?? null
 	}
 
 	get main() {
@@ -27,19 +25,17 @@ export class SkyblockProfiles {
 		return profile
 	}
 
-	get(name: string) {
-		const profile = this.profiles.find(
-			(profile) => profile.cuteName.toLowerCase() == name.toLowerCase()
+	getByCuteName(name: string) {
+		return (
+			this.profiles.find((profile) => profile.cuteName.toLowerCase() == name.toLowerCase()) ?? null
 		)
-		if (profile == null) throw new Error("Profile does not exist.")
-		return profile
 	}
 
-	getByQuery(query: string | undefined) {
+	getByStrategy(query: string) {
 		const queryLowercase = query?.toLowerCase()
 		if (queryLowercase == "bingo") return this.bingo
 		if (queryLowercase == "main") return this.main
-		if (queryLowercase == null) return this.selected
-		return this.get(queryLowercase)
+		if (queryLowercase == "selected") return this.selected
+		return this.getByCuteName(queryLowercase)
 	}
 }

@@ -1,35 +1,33 @@
-import express from "express"
-import { fetchHypixelProfiles } from "./hypixel/api.js"
-import { HypixelAPIError } from "./hypixel/errors/HypixelAPIError.js"
-import { resolve } from "./mojang/mojang.js"
-import { isTrue } from "./utils/utils.js"
+import express, { NextFunction, Request, RequestHandler, Response } from "express"
+import { PlayerRoute } from "./routes/minecraft/PlayerRoute.js"
+import { addAsyncGetRoute } from "./utils/express.js"
+import axios from "axios"
+import { HttpError } from "./hypixel/errors/HttpError.js"
+import { RawProfilesRoute } from "./routes/hypixel/skyblock/RawProfilesRoute.js"
+import { RawProfileRoute } from "./routes/hypixel/skyblock/RawProfileRoute.js"
 
 const app = express()
 const port = 3000
 
-app.get("/skyblock/profiles/:name", async (req, res, next) => {
-	try {
-		const { name } = req.params
+addAsyncGetRoute(app, PlayerRoute)
+addAsyncGetRoute(app, RawProfilesRoute)
+addAsyncGetRoute(app, RawProfileRoute)
 
-		const profiles = await fetchHypixelProfiles(name)
-
-		return res.json(profiles.main.generate())
-	} catch (error) {
-		if (error instanceof HypixelAPIError) {
-			return res.status(error.statusCode).json({ cause: error.message })
-		} else {
-			console.error(error)
-			return res.status(500).json({ error: "An unexpected error occurred" })
-		}
+app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
+	if (error instanceof HttpError) {
+		res.status(error.statusCode).json({
+			source: "upstream",
+			url: error.url,
+			status: error.statusCode
+		})
+	} else if (axios.isAxiosError(error)) {
+		res.status(500).json({
+			source: "axios",
+			error: error.message
+		})
 	}
 })
 
-app.get("/minecraft/:name", async (req, res, next) => {
-	const includeAvatar = isTrue(req.query.avatar)
-	const { name } = req.params
-	res.json(await resolve(name, includeAvatar))
-})
-
 app.listen(port, () => {
-	console.log(`Express server is running on port ${port}`)
+	console.log(`Started server on port ${port}`)
 })
