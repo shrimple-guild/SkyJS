@@ -10,7 +10,12 @@ export const RawProfileRoute = {
 			res.status(404).send({ cause: "No user found." })
 			return
 		}
-		const profile = await HypixelService.getSkyblockProfile(player.uuid, req.params.strategy!)
+		const profiles = await HypixelService.getSkyblockProfiles(player.uuid)
+		if (profiles == null) {
+			res.status(404).send({ cause: `No profile found with query ${req.params.strategy}.` })
+			return
+		}
+		const profile = profiles.getByStrategy(req.params.strategy!)
 		if (profile == null) {
 			res.status(404).send({ cause: `No profile found with query ${req.params.strategy}.` })
 			return

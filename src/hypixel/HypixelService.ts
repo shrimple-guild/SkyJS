@@ -3,6 +3,8 @@ import { SkyblockProfiles } from "./structures/SkyblockProfiles.js"
 import { hypixelAxios } from "../utils/axios.js"
 import { APISkyblockProfilesResponse } from "./types/APIProfileTypesV2.js"
 import { SkyblockProfile } from "./structures/SkyblockProfile.js"
+import { APISkyblockBazaarResponse } from "./types/APIBazaarTypes.js"
+import { HttpError } from "./errors/HttpError.js"
 
 const apiKey = process.env.HYPIXEL_API_KEY!
 
@@ -19,13 +21,14 @@ export const HypixelService = {
 		}
 	},
 
-	getSkyblockProfile: async (uuid: string, strategy: string): Promise<SkyblockProfile | null> => {
-		const profiles = await HypixelService.getSkyblockProfiles(uuid)
-		if (profiles == null) {
-			return null
-		} else {
-			return profiles.getByStrategy(strategy)
+	fetchBazaar: async (): Promise<APISkyblockBazaarResponse> => {
+		const response = await hypixelAxios.get<APISkyblockBazaarResponse>("v2/skyblock/bazaar")
+
+		if (response.status != 200) {
+			throw new HttpError("API error", response.status, "v2/skyblock/bazaar")
 		}
+
+		return response.data
 	}
 }
 

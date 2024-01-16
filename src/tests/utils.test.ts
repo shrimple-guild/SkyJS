@@ -26,8 +26,7 @@ describe("standardizeUuid function", () => {
 		]
 
 		invalidUuids.forEach((uuid) => {
-			const result = standardizeUuid(uuid)
-			assert.strictEqual(result, undefined, `Expected undefined, but got ${result}`)
+			assert.throws(() => standardizeUuid(uuid))
 		})
 	})
 })
